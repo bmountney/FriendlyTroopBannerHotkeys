@@ -19,7 +19,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>G:\Games\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\Modules\FriendlyTroopBannerToggle\bin\Win64_Shipping_Client\</OutputPath>
+    <OutputPath>G:\Games\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\Modules\FriendlyTroopBannerHotkeys\bin\Win64_Shipping_Client\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -257,6 +257,7 @@
     <!-- TODO: Don't think this can be made optional -->
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FriendlyTroopBannerHotkeysModSettings.cs" />
     <Compile Include="FriendlyTroopBannerHotkeys.cs" />
     <Compile Include="Utility.cs" />
     <Compile Include="FriendlyTroopBannerHotkeysSubModule.cs" />

@@ -8,6 +8,9 @@ namespace FriendlyTroopBannerHotkeys
     [HarmonyPatch]
     class FriendlyTroopBannerHotkeys
     {
+        public const string ModName = "FriendlyTroopBannerHotkeys";
+        public const string ModVersion = "v1.1.0";
+
         // Start with option state from game settings
         static bool initialOptionState = ManagedOptions.GetConfig(ManagedOptions.ManagedOptionsType.ShowBannersOnFriendlyTroops) == 1f;
         static bool lastOptionState = initialOptionState;
@@ -26,23 +29,25 @@ namespace FriendlyTroopBannerHotkeys
                 initialOptionState = lastOptionState = newOptionState = currentOptionState;
             }
 
-            // Handle permanent toggle key
-            bool permToggleKeyState = Input.IsKeyDown(InputKey.RightAlt);
-            if (permToggleKeyState == true && lastPermToggleKeyState == false)
+            // Handle sticky toggle key
+            bool stickyToggleKeyState = Input.IsKeyDown(FriendlyTroopBannerHotkeysModSettings.Settings.StickyBannerToggleHotkey);
+            if (stickyToggleKeyState == true && lastPermToggleKeyState == false)
             {
                 lastPermToggleKeyState = true;
                 initialOptionState = !initialOptionState;
                 newOptionState = !lastOptionState;
             }
-            else if (permToggleKeyState == false && lastPermToggleKeyState == true)
+            else if (stickyToggleKeyState == false && lastPermToggleKeyState == true)
                 lastPermToggleKeyState = false;
 
-            // Handle temporary toggle key
-            bool tempToggleKeyState = __instance.Input.IsGameKeyDown(GenericGameKeyContext.ShowIndicators);
-            if (tempToggleKeyState != lastTempToggleKeyState)
+            // Handle momentary toggle key
+            bool momentaryToggleKeyState = FriendlyTroopBannerHotkeysModSettings.Settings.UseGameShowIndicatorsBindingForMomentary ?
+                __instance.Input.IsGameKeyDown(GenericGameKeyContext.ShowIndicators) :
+                Input.IsKeyDown(FriendlyTroopBannerHotkeysModSettings.Settings.MomentaryBannerToggleHotkey);
+            if (momentaryToggleKeyState != lastTempToggleKeyState)
             {
-                lastTempToggleKeyState = tempToggleKeyState;
-                newOptionState = initialOptionState ? !tempToggleKeyState : tempToggleKeyState;
+                lastTempToggleKeyState = momentaryToggleKeyState;
+                newOptionState = initialOptionState ? !momentaryToggleKeyState : momentaryToggleKeyState;
             }
 
             // Update game settings with current option state

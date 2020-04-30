@@ -15,8 +15,23 @@ namespace FriendlyTroopBannerHotkeys
 			}
 			catch (Exception ex)
 			{
-				Utility.Log(ex.Message);
+				Utility.Log("FriendlyTroopBannerHotkeys constructor", ex.Message);
 			}
 		}
+
+        protected override void OnBeforeInitialModuleScreenSetAsRoot()
+        {
+            base.OnBeforeInitialModuleScreenSetAsRoot();
+
+            try
+            {
+                Utility.Log("Loaded " + FriendlyTroopBannerHotkeys.ModName + " " + FriendlyTroopBannerHotkeys.ModVersion + " - loaded settings file v" + FriendlyTroopBannerHotkeysModSettings.Settings.SettingsVersion);
+            }
+            catch (Exception ex)
+            {
+                Utility.Log("OnBeforeInitialModuleScreenSetAsRoot", ex);
+            }
+        }
+
     }
 }
