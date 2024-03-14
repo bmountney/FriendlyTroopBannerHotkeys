@@ -14,7 +14,7 @@ namespace FriendlyTroopBannerHotkeys
 
         public static void LogDebug(string method, string message)
         {
-            if (FriendlyTroopBannerHotkeysModSettings.Settings.Debug)
+            if (FriendlyTroopBannerHotkeys.Settings.Debug)
             {
                 InformationManager.DisplayMessage(new InformationMessage(FriendlyTroopBannerHotkeys.ModName + $"{method} debug: {message}"));
             }

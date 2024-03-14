@@ -288,6 +288,9 @@
     <Content Include="SubModule.xml" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Bannerlord.MCM">
+      <Version>5.9.2</Version>
+    </PackageReference>
     <PackageReference Include="Lib.Harmony">
       <Version>2.3.1.1</Version>
     </PackageReference>

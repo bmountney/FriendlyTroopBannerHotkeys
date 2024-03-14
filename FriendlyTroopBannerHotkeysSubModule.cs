@@ -58,7 +58,7 @@ namespace FriendlyTroopBannerHotkeys
 
             try
             {
-                Utility.Log("Loaded " + FriendlyTroopBannerHotkeys.ModName + " " + FriendlyTroopBannerHotkeys.ModVersion + " - loaded settings file v" + FriendlyTroopBannerHotkeysModSettings.Settings.SettingsVersion);
+                Utility.Log("Loaded " + FriendlyTroopBannerHotkeys.ModName + " " + FriendlyTroopBannerHotkeys.ModVersion);
             }
             catch (Exception ex)
             {
