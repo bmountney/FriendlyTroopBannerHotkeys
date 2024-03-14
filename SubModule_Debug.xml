@@ -1,0 +1,25 @@
+﻿<Module>
+  <Name value="Friendly Troop Banner Hotkeys Debug"/>
+  <Id value="FriendlyTroopBannerHotkeys_Debug"/>
+  <Version value="d1.2.0"/>
+  <SingleplayerModule value="true"/>
+  <MultiplayerModule value="false"/>
+  <DependedModules>
+    <DependedModule Id="Native"/>
+    <DependedModule Id="SandBoxCore"/>
+    <DependedModule Id="Sandbox"/>
+    <DependedModule Id="StoryMode" />
+  </DependedModules>
+  <SubModules>
+    <SubModule>
+      <Name value="FriendlyTroopBannerHotkeys"/>
+      <DLLName value="FriendlyTroopBannerHotkeys.dll"/>
+      <SubModuleClassType value="FriendlyTroopBannerHotkeys.FriendlyTroopBannerHotkeysSubModule"/>
+      <Tags>
+        <Tag key="DedicatedServerType" value="none" />
+        <Tag key="IsNoRenderModeElement" value="false" />
+      </Tags>
+    </SubModule>
+  </SubModules>
+  <Xmls/>
+</Module>

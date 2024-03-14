@@ -19,7 +19,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>G:\Games\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\Modules\FriendlyTroopBannerHotkeys\bin\Win64_Shipping_Client\</OutputPath>
+    <OutputPath>H:\Games\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\Modules\FriendlyTroopBannerHotkeys_Debug\bin\Win64_Shipping_Client\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -27,7 +27,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>G:\Games\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\Modules\FriendlyTroopBannerHotkeys\bin\Win64_Shipping_Client\</OutputPath>
+    <OutputPath>G:\Games\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\Modules\FriendlyTroopBannerHotkeys_Release\bin\Win64_Shipping_Client\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -262,6 +262,8 @@
     <Compile Include="Utility.cs" />
     <Compile Include="FriendlyTroopBannerHotkeysSubModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Content Include="SubModule_Release.xml" />
+    <Content Include="SubModule_Debug.xml" />
     <Content Include="SubModule.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -274,7 +276,19 @@
     <None Include="README.md" />
   </ItemGroup>
   <PropertyGroup>
-    <PostBuildEvent>xcopy /d /y "$(MSBuildProjectDirectory)\SubModule.xml" "G:\Games\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\Modules\FriendlyTroopBannerHotkeys"</PostBuildEvent>
+    <PostBuildEvent>IF $(Configuration) == Release GOTO Release
+IF $(Configuration) == Debug GOTO Debug
+
+:Release
+COPY "$(SolutionDir)SubModule_Release.xml" "$(TargetDir)..\..\SubModule.xml"
+GOTO End
+
+:Debug
+COPY "$(SolutionDir)SubModule_Debug.xml" "$(TargetDir)..\..\SubModule.xml"
+GOTO End
+
+:End
+</PostBuildEvent>
   </PropertyGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
