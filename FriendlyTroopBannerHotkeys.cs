@@ -1,12 +1,12 @@
 ﻿using HarmonyLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
+//using System;
+//using System.Collections.Generic;
+//using System.Linq;
+//using System.Reflection.Emit;
 using TaleWorlds.InputSystem;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.MountAndBlade.View.MissionViews;
-using SandBox.View.Missions;
+//using SandBox.View.Missions;
 
 namespace FriendlyTroopBannerHotkeys
 {
@@ -15,7 +15,7 @@ namespace FriendlyTroopBannerHotkeys
     {
         public static FriendlyTroopBannerHotkeysModSettings Settings = FriendlyTroopBannerHotkeysModSettings.Instance;
         public const string ModName = "FriendlyTroopBannerHotkeys";
-        public const string ModVersion = "v1.2.9";
+        public const string ModVersion = "v1.3.0";
 
         static bool lastMomentaryKeyPressed = false;
         static bool lastPermToggleKeyPressed = false;
@@ -26,59 +26,62 @@ namespace FriendlyTroopBannerHotkeys
         [HarmonyPatch(typeof(MissionView), "OnMissionScreenTick")]
         public static void OnMissionScreenTickPostfixPatch(MissionView __instance, float dt)
         {
-            // Handle sticky toggle key
-            if (Input.IsKeyDown(Settings.StickyBannerToggleHotkey.SelectedValue))
+            if (Settings.EnableModFunctionality)
             {
-                if (!lastPermToggleKeyPressed)
+                // Handle sticky toggle key
+                if (Input.IsKeyDown(Settings.StickyBannerToggleHotkey.SelectedValue))
                 {
-                    lastPermToggleKeyPressed = true;
-                    Settings.OnByDefault = !Settings.OnByDefault;
+                    if (!lastPermToggleKeyPressed)
+                    {
+                        lastPermToggleKeyPressed = true;
+                        Settings.OnByDefault = !Settings.OnByDefault;
+                    }
                 }
-            }
-            else if (lastPermToggleKeyPressed)
-            {
-                lastPermToggleKeyPressed = false;
-            }
-
-            // Handle momentary toggle key
-            bool momentaryKeyPressed = Settings.UseCustomMomentaryHotkey ?
-                Input.IsKeyDown(Settings.MomentaryBannerToggleHotkey.SelectedValue) :
-                    __instance.Input.IsGameKeyDown(GenericGameKeyContext.ShowIndicators) ;
-            if (momentaryKeyPressed != lastMomentaryKeyPressed)
-            {
-                lastMomentaryKeyPressed = momentaryKeyPressed;
-            }
-
-            // Handle opacity decrease
-            if (Input.IsKeyDown(Settings.DecreaseOpacityHotkey.SelectedValue))
-            {
-                if (++opacityChangeSlowdownCounter > opacityChangeSlowdownAmount)
+                else if (lastPermToggleKeyPressed)
                 {
-                    opacityChangeSlowdownCounter = 0;
-                    Settings.BannerOpacity -= 0.01f;
-                    if (Settings.BannerOpacity < FriendlyTroopBannerHotkeysModSettings.BannerOpacityMin)
-                        Settings.BannerOpacity = FriendlyTroopBannerHotkeysModSettings.BannerOpacityMin;
+                    lastPermToggleKeyPressed = false;
                 }
-            }
 
-            // Handle opacity increase
-            if (Input.IsKeyDown(Settings.IncreaseOpacityHotkey.SelectedValue))
-            {
-                if (++opacityChangeSlowdownCounter > opacityChangeSlowdownAmount)
+                // Handle momentary toggle key
+                bool momentaryKeyPressed = Settings.UseCustomMomentaryHotkey ?
+                    Input.IsKeyDown(Settings.MomentaryBannerToggleHotkey.SelectedValue) :
+                        __instance.Input.IsGameKeyDown(GenericGameKeyContext.ShowIndicators);
+                if (momentaryKeyPressed != lastMomentaryKeyPressed)
                 {
-                    opacityChangeSlowdownCounter = 0;
-                    Settings.BannerOpacity += 0.01f;
-                    if (Settings.BannerOpacity > FriendlyTroopBannerHotkeysModSettings.BannerOpacityMax)
-                        Settings.BannerOpacity = FriendlyTroopBannerHotkeysModSettings.BannerOpacityMax;
+                    lastMomentaryKeyPressed = momentaryKeyPressed;
                 }
-            }
 
-            // Update game settings with current opacity
-            float gameOpacity = (Settings.OnByDefault ? !momentaryKeyPressed : momentaryKeyPressed)
-                ? Settings.BannerOpacity : 0.0f;
-            if (ManagedOptions.GetConfig(ManagedOptions.ManagedOptionsType.FriendlyTroopsBannerOpacity) != gameOpacity)
-            {
-                ManagedOptions.SetConfig(ManagedOptions.ManagedOptionsType.FriendlyTroopsBannerOpacity, gameOpacity);
+                // Handle opacity decrease
+                if (Input.IsKeyDown(Settings.DecreaseOpacityHotkey.SelectedValue))
+                {
+                    if (++opacityChangeSlowdownCounter > opacityChangeSlowdownAmount)
+                    {
+                        opacityChangeSlowdownCounter = 0;
+                        Settings.BannerOpacity -= 0.01f;
+                        if (Settings.BannerOpacity < FriendlyTroopBannerHotkeysModSettings.BannerOpacityMin)
+                            Settings.BannerOpacity = FriendlyTroopBannerHotkeysModSettings.BannerOpacityMin;
+                    }
+                }
+
+                // Handle opacity increase
+                if (Input.IsKeyDown(Settings.IncreaseOpacityHotkey.SelectedValue))
+                {
+                    if (++opacityChangeSlowdownCounter > opacityChangeSlowdownAmount)
+                    {
+                        opacityChangeSlowdownCounter = 0;
+                        Settings.BannerOpacity += 0.01f;
+                        if (Settings.BannerOpacity > FriendlyTroopBannerHotkeysModSettings.BannerOpacityMax)
+                            Settings.BannerOpacity = FriendlyTroopBannerHotkeysModSettings.BannerOpacityMax;
+                    }
+                }
+
+                // Update game settings with current opacity
+                float gameOpacity = (Settings.OnByDefault ? !momentaryKeyPressed : momentaryKeyPressed)
+                    ? Settings.BannerOpacity : 0.0f;
+                if (ManagedOptions.GetConfig(ManagedOptions.ManagedOptionsType.FriendlyTroopsBannerOpacity) != gameOpacity)
+                {
+                    ManagedOptions.SetConfig(ManagedOptions.ManagedOptionsType.FriendlyTroopsBannerOpacity, gameOpacity);
+                }
             }
         }
     }

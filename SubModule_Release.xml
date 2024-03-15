@@ -1,7 +1,7 @@
 ﻿<Module>
-  <Name value="Friendly Troop Banner Hotkeys Release"/>
-  <Id value="FriendlyTroopBannerHotkeys_Release"/>
-  <Version value="r1.2.0"/>
+  <Name value="Friendly Troop Banner Hotkeys"/>
+  <Id value="FriendlyTroopBannerHotkeys"/>
+  <Version value="r1.3.0"/>
   <SingleplayerModule value="true"/>
   <MultiplayerModule value="false"/>
   <DependedModules>
