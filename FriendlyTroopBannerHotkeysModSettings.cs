@@ -1,11 +1,7 @@
-﻿//using System;
-//using System.IO;
-//using System.Xml.Serialization;
-using MCM.Abstractions.Attributes;
+﻿using MCM.Abstractions.Attributes;
 using MCM.Abstractions.Attributes.v2;
 using MCM.Abstractions.Base.Global;
 using MCM.Common;
-//using TaleWorlds.Localization;
 using TaleWorlds.InputSystem;
 
 namespace FriendlyTroopBannerHotkeys

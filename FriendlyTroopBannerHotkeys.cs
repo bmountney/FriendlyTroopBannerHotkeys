@@ -2,15 +2,9 @@
 using SandBox.View.Missions;
 using System;
 
-//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Reflection.Emit;
-using TaleWorlds.Engine;
 using TaleWorlds.InputSystem;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.MountAndBlade.View.MissionViews;
-//using SandBox.View.Missions;
 
 namespace FriendlyTroopBannerHotkeys
 {
@@ -26,50 +20,24 @@ namespace FriendlyTroopBannerHotkeys
         static bool lastlastMomentaryKeyPressedPressed = false;
         static bool lastStickyBannerToggleHotkeyPressed = false;
         static bool lastToggleNightOpacityHotkeyPressed = false;
-        //static int opacityChangeSlowdownInterval = 5;
-        //static int opacityChangeSlowdownCounter;
-        //const int tickInterval = 3;
-        //static int tickCounter;
 
         static float missionTimeOfDay = 0.0f;
-        //static float opacityScaleFactor = 1.0f;
-        //static bool isNight = false;
         static bool nightScalingBypass = false;
-        //static bool timeOfDaySet = false;
-
-        //[HarmonyPostfix]
-        //[HarmonyPatch(typeof(MBSubModuleBase), "OnMissionBehaviorInitialize")]
-        //public static void OnMissionBehaviorInitializePostfix (MBSubModuleBase __instance, Mission mission)
-        //{
-        //    if (timeOfDaySet) timeOfDaySet = false;
-        //}
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(MissionSingleplayerViewHandler), "OnMissionScreenInitialize")]
         public static void OnMissionScreenInitializePostfix(MissionSingleplayerViewHandler __instance)
         {
-            //float opacityScaleFactor = 1.0f;
-            //if (!timeOfDaySet)
-            //{
-                try
-                {
-                    missionTimeOfDay = __instance.Mission.Scene.TimeOfDay;
-                    nightScalingBypass = false;
-                    //timeOfDaySet = true;
-                }
-                catch (NullReferenceException ex)
-                {
-                    Utility.LogDebug("OnMissionScreenInitializePostfix", ex.Message);
-                }
-            //}
-            //string colorGrades = __instance.Scene.GetAllColorGradeNames();
-            //string filters = __instance.Scene.GetAllFilterNames();
+            try
+            {
+                missionTimeOfDay = __instance.Mission.Scene.TimeOfDay;
+                nightScalingBypass = false;
+            }
+            catch (NullReferenceException ex)
+            {
+                Utility.LogDebug("OnMissionScreenInitializePostfix", ex.Message);
+            }
 
-            //isNight = (missionTimeOfDay >= Settings.OpacityNightStart || missionTimeOfDay < Settings.OpacityNightEnd);
-            //if (missionTimeOfDay >= 20f || missionTimeOfDay < 4f)
-            //    opacityScaleFactor = 0.5f;
-            //else
-            //    opacityScaleFactor = 1.0f;
             Utility.LogVerbose("Using " + (IsNight() ? "Night" : "Day") + " Opacity");
         }
 
@@ -84,14 +52,6 @@ namespace FriendlyTroopBannerHotkeys
         {
             if (Settings.EnableModFunctionality) // && ++tickCounter > tickInterval)
             {
-                //tickCounter = 0;
-                //if (!timeOfDaySet)
-                //{
-                //    missionTimeOfDay = __instance.Mission.Scene.TimeOfDay;
-                //    nightScalingBypass = false;
-                //    timeOfDaySet = true;
-                //    Utility.LogVerbose("Using " + (IsNight() ? "Night" : "Day") + " Opacity");
-                //}
                 // Handle sticky toggle key
                 if (Input.IsKeyDown(Settings.StickyBannerToggleHotkey.SelectedValue))
                 {
@@ -118,25 +78,21 @@ namespace FriendlyTroopBannerHotkeys
                 // Handle opacity decrease
                 if (Input.IsKeyDown(Settings.DecreaseOpacityHotkey.SelectedValue))
                 {
-                    //if (++opacityChangeSlowdownCounter > opacityChangeSlowdownInterval)
-                    //{
-                        //opacityChangeSlowdownCounter = 0;
-                        Settings.BannerOpacity -= 0.01f;
-                        if (Settings.BannerOpacity < FriendlyTroopBannerHotkeysModSettings.BannerOpacityMin)
-                            Settings.BannerOpacity = FriendlyTroopBannerHotkeysModSettings.BannerOpacityMin;
-                    //}
+                    Settings.BannerOpacity -= 0.01f;
+                    if (Settings.BannerOpacity < FriendlyTroopBannerHotkeysModSettings.BannerOpacityMin)
+                    {
+                        Settings.BannerOpacity = FriendlyTroopBannerHotkeysModSettings.BannerOpacityMin;
+                    }
                 }
 
                 // Handle opacity increase
                 if (Input.IsKeyDown(Settings.IncreaseOpacityHotkey.SelectedValue))
                 {
-                    //if (++opacityChangeSlowdownCounter > opacityChangeSlowdownInterval)
-                    //{
-                        //opacityChangeSlowdownCounter = 0;
-                        Settings.BannerOpacity += 0.01f;
-                        if (Settings.BannerOpacity > FriendlyTroopBannerHotkeysModSettings.BannerOpacityMax)
-                            Settings.BannerOpacity = FriendlyTroopBannerHotkeysModSettings.BannerOpacityMax;
-                    //}
+                    Settings.BannerOpacity += 0.01f;
+                    if (Settings.BannerOpacity > FriendlyTroopBannerHotkeysModSettings.BannerOpacityMax)
+                    {
+                        Settings.BannerOpacity = FriendlyTroopBannerHotkeysModSettings.BannerOpacityMax;
+                    }
                 }
 
                 // Handle opacity night scaling toggle key

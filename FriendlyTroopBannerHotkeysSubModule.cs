@@ -1,10 +1,7 @@
 ﻿using System;
-//using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using TaleWorlds.MountAndBlade;
-//using TaleWorlds.MountAndBlade.View.MissionViews;
-//using StoryMode.View.Missions;
 
 namespace FriendlyTroopBannerHotkeys
 {
