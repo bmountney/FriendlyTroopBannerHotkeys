@@ -47,7 +47,7 @@ namespace FriendlyTroopBannerHotkeys
             }
 			catch (Exception ex)
 			{
-				Utility.Log("FriendlyTroopBannerHotkeys constructor", ex);
+				Utility.Log("constructor", ex);
                 throw ex;
 			}
 		}
@@ -58,7 +58,7 @@ namespace FriendlyTroopBannerHotkeys
 
             try
             {
-                Utility.Log("Loaded " + FriendlyTroopBannerHotkeys.ModName + " " + FriendlyTroopBannerHotkeys.ModVersion);
+                Utility.LogMessage("Loaded " + FriendlyTroopBannerHotkeys.ModName + " " + FriendlyTroopBannerHotkeys.ModVersion);
             }
             catch (Exception ex)
             {

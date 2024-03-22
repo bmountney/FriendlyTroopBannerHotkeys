@@ -20,6 +20,8 @@ namespace FriendlyTroopBannerHotkeys
 
         public override string FormatType => "json2";
 
+        public static bool Debug = false;
+        
         //const string settingsPathName = "..\\..\\Modules\\" + FriendlyTroopBannerHotkeys.ModName + "\\ModuleData\\" + FriendlyTroopBannerHotkeys.ModName + "ModSettings.xml";
         //const string hotkeyInstructions = "Choose from any of the labels in the \"KeyIdentifiers\" list to specify a key binding in the \"MomentaryBannerToggleKey\" or \"StickyBannerToggleKey\" settings. If the \"UseGameShowIndicatorsBindingForMomentary\" setting is set to \"true\", then the \"MomemtaryBannerToggleHotkey\" will be ignored, and it will instead use whatever key is bound to \"Show Indicators\" in the game settings. In any case where a key is bound to functions in both the mod and the game, it will then perform both the mod function and the game function simultaneously. The names are case sensitive, and must be entered exactly as listed. The \"D1\" through \"D0\" keys are the numeric keys on the main keyboard, and I think the rest should be self-explanatory.";
         //const string bannerScalingInstructions = "The \"BannerScaleFactor\" option controls the normal banner size, and can be set from 0.1, which is 1/10th normal size, up to 1.0, which would be normal size.  The \"SelectedBannerScaleFactor\" controls the size of the banners with the outer yellow circle for selected troops.  This scaling works differently than the normal banner size, and unfortunately can never be made smaller than the original size.  Instead, it controls the extra enlargement of selected troop banners that occurs with more distant troops, to make it easier to see the selected troops when they're farther away.  The default value is 30, and this will result in the selected banners being enlarged by the usual amount.  It can be lowered down to 1, which will result in the distant banners not being enlarged at all, or increased to 60, which will enlarge them twice as much as usual.  Values lower than 1 have no effect, so the selected troop banners can never be made smaller than the original size.  (I find that a value of 0.5 for the \"BannerScaleFactor\" and 15 for the \"SelectedBannerScaleFactor\" seems to work pretty well for making the banners less obtrusive.)  Since the patches required to achieve the banner scaling are more invasive and more likely to break with future game updates, I added another config option called \"ApplyBannerScalingMod\" that must be changed to \"true\" for banner scaling to happen at all.  If the banner scaling causes a future version of the game to crash or throw an exception, you can change setting back to \"false\" and then the banner scaling patches will not be applied at all.";
@@ -28,42 +30,58 @@ namespace FriendlyTroopBannerHotkeys
 
         //public int? SettingsVersion { get; set; }
 
-        [SettingPropertyBool("{=EnableModFunctionality}Enable Mod Functionality", Order = 0, RequireRestart = false, HintText = "{=EnableModFunctionalityHint}If this is disabled, the hotkey functionality will be turned off and the game's own banner opacity setting will be used. Enabled by default.", IsToggle = true)]
+        [SettingPropertyBool("{=EnableModFunctionality}Enable Mod Functionality", Order = 0, RequireRestart = false, HintText = "{=EnableModFunctionalityHint}If this is disabled, all mod functions will be turned off and the game's own banner opacity setting will be used. Enabled by default.", IsToggle = true)]
         [SettingPropertyGroup("{=Main}Enable Hotkeys", GroupOrder = 0)]
         public bool EnableModFunctionality { get; set; } = true;
 
         public const float BannerOpacityMin = 0.1f;
         public const float BannerOpacityMax = 1.0f;
-        [SettingPropertyFloatingInteger("{=BannerOpacity}Banner Opacity", BannerOpacityMin, BannerOpacityMax, Order = 1, RequireRestart = false, HintText = "{=BannerOpacityHint}Since toggling the visibility of the banners is achieved changing the game's banner opacity setting, the opacity set will be used when the banners are visible, ensuring that the desired banner opacity will be retained even if the banners are toggled off at game exit. Default is 100% for full opacity.")]
+        [SettingPropertyFloatingInteger("{=BannerOpacity}Banner Opacity", BannerOpacityMin, BannerOpacityMax, Order = 1, RequireRestart = false, HintText = "{=BannerOpacityHint}Since the mod achives toggling the visibility of the banners by changing the game's banner opacity setting, the opacity set here will be used instead when the banners are visible, ensuring that the desired banner opacity will be retained even if the banners are toggled off at game exit. Default is 100% for full opacity.")]
         [SettingPropertyGroup("{=Main}Enable Hotkeys", GroupOrder = 0)]
         public float BannerOpacity { get; set; } = 1.0f;
 
-        [SettingPropertyBool("{=OnByDefault}Banners Are On by Default", Order = 2, RequireRestart = false, HintText = "{=OffByDefault}When this option is enabled, the banners will start out as on until you press the momentary hotkey to hide them.  The toggle hotkey actually toggles this option so that the banners will be in the last state you left them in the next battle. Enabled by default.")]
+        [SettingPropertyFloatingInteger("{=OpacityNightScale}Opacity Night Scale Factor", BannerOpacityMin, BannerOpacityMax, Order = 2, RequireRestart = false, HintText = "{=OpacityNightScaleHint}This will automatically reduce the maximum opacity by the specified amount during night battles, since an opacity level that looks good during day battles will often look too bright at night. Default is 100% for no night opacity reduction.")]
+        [SettingPropertyGroup("{=Main}Enable Hotkeys", GroupOrder = 0)]
+        public float OpacityNightScale { get; set; } = 1.0f;
+
+        [SettingPropertyFloatingInteger("{=OpacityNightStart}Night Start Time", 0.0f, 24.0f, Order = 3, RequireRestart = false, HintText = "{=OpacityNightStartHint}This is the in-game time of day to begin using the opacity night scale factor, which is specified in 24 hour decimal time (so 0 is 12:00am, 12 is 12:00pm, and 20.5 is 8:30pm) Default is 20 for 8:00pm.")]
+        [SettingPropertyGroup("{=Main}Enable Hotkeys", GroupOrder = 0)]
+        public float OpacityNightStart { get; set; } = 20.0f;
+
+        [SettingPropertyFloatingInteger("{=OpacityNightEnd}Night End Time", 0.0f, 24.0f, Order = 4, RequireRestart = false, HintText = "{=OpacityNightEndHint}This is the in-game time of day to stop using the opacity night scale factor, which is specified in 24 hour decimal time (so 0 is 12:00am, 12 is 12:00pm, and 20.5 is 8:30pm) Default is 4 for 4:00am.")]
+        [SettingPropertyGroup("{=Main}Enable Hotkeys", GroupOrder = 0)]
+        public float OpacityNightEnd { get; set; } = 4.0f;
+
+        [SettingPropertyBool("{=OnByDefault}Banners Are On by Default", Order = 5, RequireRestart = false, HintText = "{=OffByDefault}When this option is enabled, the banners will start out as on until you press the momentary hotkey to hide them.  The toggle hotkey actually toggles this option so that the banners will be in the last state you left them in the next battle. Enabled by default.")]
         [SettingPropertyGroup("{=Main}Enable Hotkeys", GroupOrder = 0)]
         public bool OnByDefault { get; set; } = true;
 
-        [SettingPropertyBool("{=VerboseLog}Show Additional Log Messages", Order = 3, RequireRestart = false, HintText = "{=VerboseLog}This is mainly for use int testing the mod, but it could also be useful if submitting a bug report. Disabled by default.")]
+        [SettingPropertyBool("{=VerboseLog}Show Additional Log Messages", Order = 6, RequireRestart = false, HintText = "{=VerboseLog}This is mainly for use int testing the mod, but it could also be useful if submitting a bug report. Disabled by default.")]
         [SettingPropertyGroup("{=Main}Enable Hotkeys", GroupOrder = 0)]
-        public bool Debug { get; set; } = false;
+        public bool VerboseLog { get; set; } = false;
 
-        [SettingPropertyDropdown("{=DecreaseOpacityHotkey}Decrease Opacity Hotkey", Order = 4, RequireRestart = false, HintText = "{=DecreaseOpacityHotkeyHint}This hotkey will toggle the banner visibilty only while the key is held. Default is the <Alt> key, which also displays troop infmation in the game's default hotkey settings.")]
-        [SettingPropertyGroup("{=Main}Enable Hotkeys/Hotkeys", GroupOrder = 2)]
+        [SettingPropertyDropdown("{=DecreaseOpacityHotkey}Decrease Opacity Hotkey", Order = 7, RequireRestart = false, HintText = "{=DecreaseOpacityHotkeyHint}This hotkey will decrease the current opacity level of the banners. Default is the <PgDown> key.")]
+        [SettingPropertyGroup("{=Main}Enable Hotkeys", GroupOrder = 0)]
         public Dropdown<InputKey> DecreaseOpacityHotkey { get; set; } = new Dropdown<InputKey>(keyIdentifiers, selectedIndex: 82);
 
-        [SettingPropertyDropdown("{=IncreaseOpacityHotkey}Increase Opacity Hotkey", Order = 5, RequireRestart = false, HintText = "{=IncreaseOpacityHotkeyHint}This hotkey will toggle the banner visibilty only while the key is held. Default is the <Alt> key, which also displays troop infmation in the game's default hotkey settings.")]
-        [SettingPropertyGroup("{=Main}Enable Hotkeys/Hotkeys", GroupOrder = 2)]
+        [SettingPropertyDropdown("{=IncreaseOpacityHotkey}Increase Opacity Hotkey", Order = 8, RequireRestart = false, HintText = "{=IncreaseOpacityHotkeyHint}This hotkey will increase the current opacity level of the banners. Default is the <PgUp> key.")]
+        [SettingPropertyGroup("{=Main}Enable Hotkeys", GroupOrder = 0)]
         public Dropdown<InputKey> IncreaseOpacityHotkey { get; set; } = new Dropdown<InputKey>(keyIdentifiers, selectedIndex: 81);
 
-        [SettingPropertyDropdown("{=ToggleHotkey}Toggle Hotkey", Order = 6, RequireRestart = false, HintText = "{=ToggleHotkeyyHint}This hotkey will toggle the banner visibilty only while the key is held. Default is the <Alt> key, which also displays troop infmation in the game's default hotkey settings.")]
-        [SettingPropertyGroup("{=Main}Enable Hotkeys/Hotkeys", GroupOrder = 2)]
+        [SettingPropertyDropdown("{=NightOpacityBypassHotkey}Night Opacity Bypass Toggle Hotkey", Order = 9, RequireRestart = false, HintText = "{=NightOpacityBypassHotkeyHint}This hotkey will toggle use of the night opacity scaling during the current battle, in case some combination of lighting and weather makes it too dim even though the hour falls within the specified night range. Default is the <End> key.")]
+        [SettingPropertyGroup("{=Main}Enable Hotkeys", GroupOrder = 0)]
+        public Dropdown<InputKey> NightOpacityBypassHotkey { get; set; } = new Dropdown<InputKey>(keyIdentifiers, selectedIndex: 80);
+
+        [SettingPropertyDropdown("{=ToggleHotkey}Banner Toggle Hotkey", Order = 10, RequireRestart = false, HintText = "{=ToggleHotkeyHint}This hotkey will toggle the banner visibilty only while the key is held. Default is the <Alt> key, which also displays troop infmation in the game's default hotkey settings.")]
+        [SettingPropertyGroup("{=Main}Enable Hotkeys", GroupOrder = 0)]
         public Dropdown<InputKey> StickyBannerToggleHotkey { get; set; } = new Dropdown<InputKey>(keyIdentifiers, selectedIndex: 1);
 
-        [SettingPropertyBool("{=UseCustomMomentaryHotkey}Use Custom Hotkey for Momentary Press", Order = 7, RequireRestart = false, HintText = "{=UseCustomMomentaryHotkeyHint}If this setting is enabled, you can specify a custom hotkey for momentarily changing the banner visibility. In any case where a key is bound to functions in both the mod and the game, it will then perform both the mod function and the game function simultaneously. If this is disabled then the game's hotkey for showing troop information will be used. Enabled by default.", IsToggle = true)]
-        [SettingPropertyGroup("{=Main}Enable Hotkeys/Hotkeys/Use Custom Hotkey for Momentary Press", GroupOrder = 1)]
+        [SettingPropertyBool("{=UseCustomMomentaryHotkey}Use Custom Hotkey for Momentary Press", Order = 0, RequireRestart = false, HintText = "{=UseCustomMomentaryHotkeyHint}If this setting is enabled, you can specify a custom hotkey for momentarily changing the banner visibility. In any case where a key is bound to functions in both the mod and the game, it will then perform both the mod function and the game function simultaneously. If this is disabled then the game's hotkey for showing troop information will be used. Enabled by default.", IsToggle = true)]
+        [SettingPropertyGroup("{=Main}Enable Hotkeys/Use Custom Hotkey for Momentary Press", GroupOrder = 1)]
         public bool UseCustomMomentaryHotkey { get; set; } = false;
 
-        [SettingPropertyDropdown("{=MomentaryHotkey}Momentary Press Hotkey", Order = 8, RequireRestart = false, HintText = "{=MomentaryHotkeyHint}This hotkey will toggle the banner visibilty only while the key is held. Default is the <Alt> key, which also displays troop infmation in the game's default hotkey settings.")]
-        [SettingPropertyGroup("{=Main}Enable Hotkeys/Hotkeys/Use Custom Hotkey for Momentary Press", GroupOrder = 1)]
+        [SettingPropertyDropdown("{=MomentaryHotkey}Momentary Press Hotkey", Order = 1, RequireRestart = false, HintText = "{=MomentaryHotkeyHint}This hotkey will toggle the banner visibilty only while the key is held. Default is the <Alt> key, which also displays troop infmation in the game's default hotkey settings.")]
+        [SettingPropertyGroup("{=Main}Enable Hotkeys/Use Custom Hotkey for Momentary Press", GroupOrder = 1)]
         public Dropdown<InputKey> MomentaryBannerToggleHotkey { get; set; } = new Dropdown<InputKey>(keyIdentifiers, selectedIndex: 0);
 
         //public bool ApplyBannerScalingMod { get; set; }

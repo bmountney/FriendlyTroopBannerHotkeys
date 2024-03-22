@@ -1,8 +1,12 @@
 ﻿using HarmonyLib;
+using SandBox.View.Missions;
+using System;
+
 //using System;
 //using System.Collections.Generic;
 //using System.Linq;
 //using System.Reflection.Emit;
+using TaleWorlds.Engine;
 using TaleWorlds.InputSystem;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.MountAndBlade.View.MissionViews;
@@ -15,72 +19,148 @@ namespace FriendlyTroopBannerHotkeys
     {
         public static FriendlyTroopBannerHotkeysModSettings Settings = FriendlyTroopBannerHotkeysModSettings.Instance;
         public const string ModName = "FriendlyTroopBannerHotkeys";
+        public const string FriendlyModName = "Friendly Troop Banner Hotkeys";
+        public const string LogPrefix = FriendlyModName + " - ";
         public const string ModVersion = "v1.3.0";
 
-        static bool lastMomentaryKeyPressed = false;
-        static bool lastPermToggleKeyPressed = false;
-        static int opacityChangeSlowdownAmount = 50;
-        static int opacityChangeSlowdownCounter = 0;
+        static bool lastlastMomentaryKeyPressedPressed = false;
+        static bool lastStickyBannerToggleHotkeyPressed = false;
+        static bool lastToggleNightOpacityHotkeyPressed = false;
+        //static int opacityChangeSlowdownInterval = 5;
+        //static int opacityChangeSlowdownCounter;
+        //const int tickInterval = 3;
+        //static int tickCounter;
+
+        static float missionTimeOfDay = 0.0f;
+        //static float opacityScaleFactor = 1.0f;
+        //static bool isNight = false;
+        static bool nightScalingBypass = false;
+        //static bool timeOfDaySet = false;
+
+        //[HarmonyPostfix]
+        //[HarmonyPatch(typeof(MBSubModuleBase), "OnMissionBehaviorInitialize")]
+        //public static void OnMissionBehaviorInitializePostfix (MBSubModuleBase __instance, Mission mission)
+        //{
+        //    if (timeOfDaySet) timeOfDaySet = false;
+        //}
 
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(MissionView), "OnMissionScreenTick")]
-        public static void OnMissionScreenTickPostfixPatch(MissionView __instance, float dt)
+        [HarmonyPatch(typeof(MissionSingleplayerViewHandler), "OnMissionScreenInitialize")]
+        public static void OnMissionScreenInitializePostfix(MissionSingleplayerViewHandler __instance)
         {
-            if (Settings.EnableModFunctionality)
+            //float opacityScaleFactor = 1.0f;
+            //if (!timeOfDaySet)
+            //{
+                try
+                {
+                    missionTimeOfDay = __instance.Mission.Scene.TimeOfDay;
+                    nightScalingBypass = false;
+                    //timeOfDaySet = true;
+                }
+                catch (NullReferenceException ex)
+                {
+                    Utility.LogDebug("OnMissionScreenInitializePostfix", ex.Message);
+                }
+            //}
+            //string colorGrades = __instance.Scene.GetAllColorGradeNames();
+            //string filters = __instance.Scene.GetAllFilterNames();
+
+            //isNight = (missionTimeOfDay >= Settings.OpacityNightStart || missionTimeOfDay < Settings.OpacityNightEnd);
+            //if (missionTimeOfDay >= 20f || missionTimeOfDay < 4f)
+            //    opacityScaleFactor = 0.5f;
+            //else
+            //    opacityScaleFactor = 1.0f;
+            Utility.LogVerbose("Using " + (IsNight() ? "Night" : "Day") + " Opacity");
+        }
+
+        static bool IsNight()
+        {
+            return (missionTimeOfDay >= Settings.OpacityNightStart || missionTimeOfDay < Settings.OpacityNightEnd) && !nightScalingBypass;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(MissionSingleplayerViewHandler), "OnMissionScreenTick")]
+        public static void OnMissionScreenTickPostfix(MissionView __instance, float dt)
+        {
+            if (Settings.EnableModFunctionality) // && ++tickCounter > tickInterval)
             {
+                //tickCounter = 0;
+                //if (!timeOfDaySet)
+                //{
+                //    missionTimeOfDay = __instance.Mission.Scene.TimeOfDay;
+                //    nightScalingBypass = false;
+                //    timeOfDaySet = true;
+                //    Utility.LogVerbose("Using " + (IsNight() ? "Night" : "Day") + " Opacity");
+                //}
                 // Handle sticky toggle key
                 if (Input.IsKeyDown(Settings.StickyBannerToggleHotkey.SelectedValue))
                 {
-                    if (!lastPermToggleKeyPressed)
+                    if (!lastStickyBannerToggleHotkeyPressed)
                     {
-                        lastPermToggleKeyPressed = true;
+                        lastStickyBannerToggleHotkeyPressed = true;
                         Settings.OnByDefault = !Settings.OnByDefault;
                     }
                 }
-                else if (lastPermToggleKeyPressed)
+                else if (lastStickyBannerToggleHotkeyPressed)
                 {
-                    lastPermToggleKeyPressed = false;
+                    lastStickyBannerToggleHotkeyPressed = false;
                 }
 
                 // Handle momentary toggle key
                 bool momentaryKeyPressed = Settings.UseCustomMomentaryHotkey ?
                     Input.IsKeyDown(Settings.MomentaryBannerToggleHotkey.SelectedValue) :
                         __instance.Input.IsGameKeyDown(GenericGameKeyContext.ShowIndicators);
-                if (momentaryKeyPressed != lastMomentaryKeyPressed)
+                if (momentaryKeyPressed != lastlastMomentaryKeyPressedPressed)
                 {
-                    lastMomentaryKeyPressed = momentaryKeyPressed;
+                    lastlastMomentaryKeyPressedPressed = momentaryKeyPressed;
                 }
 
                 // Handle opacity decrease
                 if (Input.IsKeyDown(Settings.DecreaseOpacityHotkey.SelectedValue))
                 {
-                    if (++opacityChangeSlowdownCounter > opacityChangeSlowdownAmount)
-                    {
-                        opacityChangeSlowdownCounter = 0;
+                    //if (++opacityChangeSlowdownCounter > opacityChangeSlowdownInterval)
+                    //{
+                        //opacityChangeSlowdownCounter = 0;
                         Settings.BannerOpacity -= 0.01f;
                         if (Settings.BannerOpacity < FriendlyTroopBannerHotkeysModSettings.BannerOpacityMin)
                             Settings.BannerOpacity = FriendlyTroopBannerHotkeysModSettings.BannerOpacityMin;
-                    }
+                    //}
                 }
 
                 // Handle opacity increase
                 if (Input.IsKeyDown(Settings.IncreaseOpacityHotkey.SelectedValue))
                 {
-                    if (++opacityChangeSlowdownCounter > opacityChangeSlowdownAmount)
-                    {
-                        opacityChangeSlowdownCounter = 0;
+                    //if (++opacityChangeSlowdownCounter > opacityChangeSlowdownInterval)
+                    //{
+                        //opacityChangeSlowdownCounter = 0;
                         Settings.BannerOpacity += 0.01f;
                         if (Settings.BannerOpacity > FriendlyTroopBannerHotkeysModSettings.BannerOpacityMax)
                             Settings.BannerOpacity = FriendlyTroopBannerHotkeysModSettings.BannerOpacityMax;
-                    }
+                    //}
                 }
 
-                // Update game settings with current opacity
-                float gameOpacity = (Settings.OnByDefault ? !momentaryKeyPressed : momentaryKeyPressed)
-                    ? Settings.BannerOpacity : 0.0f;
-                if (ManagedOptions.GetConfig(ManagedOptions.ManagedOptionsType.FriendlyTroopsBannerOpacity) != gameOpacity)
+                // Handle opacity night scaling toggle key
+                if (Input.IsKeyDown(Settings.NightOpacityBypassHotkey.SelectedValue))
                 {
-                    ManagedOptions.SetConfig(ManagedOptions.ManagedOptionsType.FriendlyTroopsBannerOpacity, gameOpacity);
+                    if (!lastToggleNightOpacityHotkeyPressed)
+                    {
+                        lastToggleNightOpacityHotkeyPressed = true;
+                        nightScalingBypass = !nightScalingBypass;
+                        Utility.LogVerbose("Opacity Night Scaling " + (nightScalingBypass ? "Bypassed" : "Disabled") + " Opacity");
+                    }
+                }
+                else if (lastToggleNightOpacityHotkeyPressed)
+                {
+                    lastToggleNightOpacityHotkeyPressed = false;
+                }
+
+                // Calculate current opacity and update opacity in game settings
+                float effectiveOpacity = (Settings.OnByDefault ? !momentaryKeyPressed : momentaryKeyPressed)
+                    ? Settings.BannerOpacity * (IsNight() ? Settings.OpacityNightScale : 1.0f)
+                    : 0.0f;
+                if (ManagedOptions.GetConfig(ManagedOptions.ManagedOptionsType.FriendlyTroopsBannerOpacity) != effectiveOpacity)
+                {
+                    ManagedOptions.SetConfig(ManagedOptions.ManagedOptionsType.FriendlyTroopsBannerOpacity, effectiveOpacity);
                 }
             }
         }

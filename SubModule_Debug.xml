@@ -1,6 +1,6 @@
 ﻿<Module>
-  <Name value="Friendly Troop Banner Hotkeys Debug"/>
-  <Id value="FriendlyTroopBannerHotkeys_Debug"/>
+  <Name value="Friendly Troop Banner Hotkeys"/>
+  <Id value="FriendlyTroopBannerHotkeys"/>
   <Version value="d1.3.0"/>
   <SingleplayerModule value="true"/>
   <MultiplayerModule value="false"/>
