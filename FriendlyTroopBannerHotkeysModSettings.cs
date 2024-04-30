@@ -49,7 +49,7 @@ namespace FriendlyTroopBannerHotkeys
         [SettingPropertyGroup("{=Main}Enable Hotkeys", GroupOrder = 0)]
         public bool OnByDefault { get; set; } = true;
 
-        [SettingPropertyBool("{=VerboseLog}Show Additional Log Messages", Order = 6, RequireRestart = false, HintText = "{=VerboseLog}This is mainly for use int testing the mod, but it could also be useful if submitting a bug report. Disabled by default.")]
+        [SettingPropertyBool("{=VerboseLog}Show Additional Log Messages", Order = 6, RequireRestart = false, HintText = "{=VerboseLogHint}This is mainly for use int testing the mod, but it could also be useful if submitting a bug report. Disabled by default.")]
         [SettingPropertyGroup("{=Main}Enable Hotkeys", GroupOrder = 0)]
         public bool VerboseLog { get; set; } = false;
 
@@ -70,11 +70,11 @@ namespace FriendlyTroopBannerHotkeys
         public Dropdown<InputKey> StickyBannerToggleHotkey { get; set; } = new Dropdown<InputKey>(keyIdentifiers, selectedIndex: 1);
 
         [SettingPropertyBool("{=UseCustomMomentaryHotkey}Use Custom Hotkey for Momentary Press", Order = 0, RequireRestart = false, HintText = "{=UseCustomMomentaryHotkeyHint}If this setting is enabled, you can specify a custom hotkey for momentarily changing the banner visibility. If a key is bound to functions in both the mod and the game, it will then perform both functions simultaneously. If this is disabled then the game's hotkey for showing troop information will be used, allowing the banners to be turned either off or on with the troop information. Disabled by default.", IsToggle = true)]
-        [SettingPropertyGroup("{=Main}Enable Hotkeys/Use Custom Hotkey for Momentary Press", GroupOrder = 1)]
+        [SettingPropertyGroup("{=GroupMomentaryHotkey}Enable Hotkeys/Use Custom Hotkey for Momentary Press", GroupOrder = 1)]
         public bool UseCustomMomentaryHotkey { get; set; } = false;
 
         [SettingPropertyDropdown("{=MomentaryHotkey}Momentary Press Hotkey", Order = 1, RequireRestart = false, HintText = "{=MomentaryHotkeyHint}This hotkey will toggle the banner visibilty only while the key is held. Default is the [Left Alt] key, which also displays troop information in the game's default key mapping, allowing those two functions to be combined.")]
-        [SettingPropertyGroup("{=Main}Enable Hotkeys/Use Custom Hotkey for Momentary Press", GroupOrder = 1)]
+        [SettingPropertyGroup("{=GroupMomentaryHotkey}Enable Hotkeys/Use Custom Hotkey for Momentary Press", GroupOrder = 1)]
         public Dropdown<InputKey> MomentaryBannerToggleHotkey { get; set; } = new Dropdown<InputKey>(keyIdentifiers, selectedIndex: 0);
 
         //public bool ApplyBannerScalingMod { get; set; }
